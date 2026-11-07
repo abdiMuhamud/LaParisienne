@@ -42,11 +42,10 @@ $("[data-branches]").innerHTML = BRANCHES.map((b, i) => `
 
 $("[data-year]").textContent = new Date().getFullYear();
 
-// Split hero word into characters (both layers must match exactly).
+// Split the hero word into masked characters, with a gap after "PAS" that the arch photo sits in.
 $$(".hero__word").forEach((w) => {
   const span = w.querySelector("span");
-  const txt = span.textContent;
-  span.innerHTML = [...txt].map((c) => w.classList.contains("hero__word--back") ? `<span class="chw"><span class="ch">${c}</span></span>` : `<span class="ch">${c}</span>`).join("");
+  span.innerHTML = [...span.textContent].map((c, i) => (i === 3 ? `<span class="hero__gap" aria-hidden="true"></span>` : "") + `<span class="chw"><span class="ch">${c}</span></span>`).join("");
 });
 // Split headings into lines at <br>.
 $$(".reveal-lines").forEach((h) => {
@@ -120,7 +119,6 @@ if (!hasGsap) {
     tl.fromTo(".hero__arch", { clipPath: "inset(48% 0% 48% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.6, ease: "expo.inOut" }, 0)
       .fromTo(".hero__archimg img", { scale: 1.45 }, { scale: 1.06, duration: 2.2 }, 0.1)
       .fromTo(".hero__word--back .ch", { yPercent: 110 }, { yPercent: 0, duration: 1.4, stagger: 0.06 }, 0.45)
-      .fromTo(".hero__word--front .ch", { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.4, stagger: 0.06 }, 0.45)
       .fromTo(".hero__kicker span", { yPercent: 110 }, { yPercent: 0, duration: 1.1 }, 0.8)
       .fromTo(".hero__menu", { opacity: 0 }, { opacity: 1, duration: 1 }, 1.2)
       .fromTo([".hero__copy", ".hero__stats", ".ring", ".nav"], { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, stagger: 0.08 }, 1.0);

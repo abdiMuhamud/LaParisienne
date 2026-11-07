@@ -159,11 +159,13 @@ html:not(.js) .intro { display: none; }
 .hero {
   /* Word scales with width AND height, everything below it is placed from its bottom edge,
      so nothing collides on wide-but-short screens. */
-  --word-size: min(22.5vw, 40vh, 400px);
-  --word-top: max(25vh, calc(var(--nav-h) + 64px));
+  /* "PAS" and "TRY" flank the arch photo with a clear gap on each side — nothing overlaps. */
+  --word-size: min(17vw, 36vh, 330px);
+  --word-top: max(27vh, calc(var(--nav-h) + 80px));
   --word-bottom: calc(var(--word-top) + var(--word-size) * 0.82);
   --arch-top: max(13.5vh, calc(var(--nav-h) + 10px));
-  --arch-w: min(clamp(220px, 25vw, 430px), calc((var(--word-bottom) + 150px - var(--arch-top)) / 1.42));
+  --arch-w: min(clamp(190px, 21vw, 380px), calc((var(--word-bottom) + 150px - var(--arch-top)) / 1.42));
+  --arch-pad: clamp(14px, 2vw, 36px);
   --py: 0px;
   --wy: 0px;
   position: relative; min-height: max(100svh, calc(var(--word-bottom) + 260px)); overflow: hidden; isolation: isolate;
@@ -201,13 +203,7 @@ html:not(.js) .intro { display: none; }
 .hero__archimg { position: absolute; inset: 0; }
 .hero__archimg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 66%; transform: scale(1.06); will-change: transform; }
 .hero__archimg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30, 14, 6, 0.25), transparent 30%, transparent 70%, rgba(30, 14, 6, 0.45)); }
-/* The front copy lives inside the arch: right-hand letters pass in front of the photo, left-hand letters sit behind it. */
-.hero__word--front {
-  left: calc(var(--arch-w) / 2 - var(--sw, 100vw) / 2); top: calc(var(--word-top) - var(--arch-top));
-  transform: translate3d(0, calc(var(--wy) - var(--py)), 0);
-  text-shadow: 0 24px 50px rgba(20, 8, 2, 0.45);
-}
-.hero__word--front .ch:nth-child(-n + 3) { visibility: hidden; }
+.hero__gap { display: inline-block; width: calc(var(--arch-w) + var(--arch-pad) * 2); }
 .hero__menu {
   position: absolute; left: 50%; bottom: 23%; transform: translateX(-50%) translate3d(0, calc(var(--py) * -0.35), 0);
   padding: 13px 44px; border-radius: 999px; border: 2px solid rgba(246, 237, 224, 0.9); font-size: 18px; font-weight: 600; letter-spacing: 0.04em;
@@ -426,22 +422,28 @@ html:not(.js) .intro { display: none; }
   .reserve__media { min-height: 62svh; }
   .visit__grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 760px) {
-  :root { --nav-h: 66px; }
-  .nav__cta { display: none; }
-  .nav__brand .mlogo { width: 100px; }
+/* Phones and portrait tablets: photo on top, the full word underneath it. */
+@media (max-width: 760px), (max-width: 1080px) and (orientation: portrait) {
   .hero {
-    --word-size: 22.5vw; --word-top: calc(var(--nav-h) + 24vw + 30px); --arch-w: 54vw; --arch-top: calc(var(--nav-h) + 30px);
+    --arch-w: min(52vw, 400px); --arch-top: calc(var(--nav-h) + 26px);
+    --word-size: 22.5vw; --word-top: calc(var(--arch-top) + var(--arch-w) * 1.42 + 26px);
     min-height: 0; display: flex; flex-direction: column; padding-bottom: 50px;
   }
-  .hero__stage { position: relative; height: calc(var(--arch-top) + var(--arch-w) * 1.42 + 20px); flex: none; }
+  .hero__gap { display: none; }
+  .hero__word--back { transform: translate3d(0, var(--py), 0); }
+  .hero__stage { position: relative; height: calc(var(--word-top) + var(--word-size) * 0.82 + 22px); flex: none; }
   .hero__kicker { display: none; }
-  .hero__menu { font-size: 14px; padding: 9px 26px; bottom: 16%; }
-  .hero__copy { position: relative; left: auto; top: auto; width: auto; padding: 8px var(--gutter) 0; text-align: center; }
+  .hero__copy { position: relative; left: auto; top: auto; width: auto; max-width: 600px; margin: 0 auto; padding: 8px var(--gutter) 0; text-align: center; }
   .hero__btns { justify-content: center; }
   .hero__btns .btn { flex: 1 1 160px; }
   .hero__stats { position: relative; right: auto; top: auto; justify-content: center; gap: 30px; margin-top: 34px; padding: 0 var(--gutter); }
   .ring { display: none; }
+}
+@media (max-width: 760px) {
+  :root { --nav-h: 66px; }
+  .nav__cta { display: none; }
+  .nav__brand .mlogo { width: 100px; }
+  .hero__menu { font-size: 14px; padding: 9px 26px; bottom: 16%; }
   .story__points li { flex-direction: column; gap: 2px; }
   .story__points span { text-align: left; align-self: flex-start; }
   .menu__bar { flex-direction: column; align-items: stretch; gap: 10px; }
