@@ -198,13 +198,28 @@ if (!hasGsap) {
   gsap.from(".seg, .rform:not([hidden])", { y: 30, opacity: 0, duration: 1.1, stagger: 0.1, ease: "expo.out", scrollTrigger: { trigger: ".reserve__panel", start: "top 70%" } });
 
   /* ---------- story: layered parallax ---------- */
-  gsap.fromTo(".story__year span:first-child", { xPercent: -12 }, { xPercent: 4, ease: "none", scrollTrigger: { trigger: ".story", scrub: true } });
-  gsap.fromTo(".story__year span:last-child", { xPercent: 12 }, { xPercent: -4, ease: "none", scrollTrigger: { trigger: ".story", scrub: true } });
-  $$(".story__img img, .reserve__media img").forEach((img) => {
+  // "19" and "93" glide in from the edges and lock together — never crossing.
+  const yearST = { trigger: ".story__year", start: "top bottom", end: "center 55%", scrub: true };
+  gsap.fromTo(".story__year span:first-child", { xPercent: -45, opacity: 0.2 }, { xPercent: 0, opacity: 1, ease: "none", scrollTrigger: yearST });
+  gsap.fromTo(".story__year span:last-child", { xPercent: 45, opacity: 0.2 }, { xPercent: 0, opacity: 1, ease: "none", scrollTrigger: { ...yearST } });
+  $$(".story__img img").forEach((img) => {
     gsap.fromTo(img, { yPercent: -12 }, { yPercent: 0, ease: "none", scrollTrigger: { trigger: img.parentElement, scrub: true } });
   });
-  gsap.fromTo(".story__img--a", { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.6, ease: "expo.inOut", scrollTrigger: { trigger: ".story__media", start: "top 75%" } });
-  gsap.fromTo(".story__img--b", { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 1.6, ease: "expo.out", scrollTrigger: { trigger: ".story__media", start: "top 60%" } });
+  gsap.fromTo(".reserve__media img", { yPercent: -5 }, { yPercent: 5, ease: "none", scrollTrigger: { trigger: ".reserve__media", scrub: true } });
+
+  /* ---------- clean image reveal: a mask wipes open while the photo settles from a slow zoom ---------- */
+  const SHUT = { up: "inset(100% 0% 0% 0%)", side: "inset(0% 100% 0% 0%)" };
+  const OPEN = "inset(0% 0% 0% 0%)";
+  const revealImg = (frame, { from = "up", delay = 0, start = "top 82%" } = {}) => {
+    const img = frame.querySelector("img");
+    const tl = gsap.timeline({ delay, scrollTrigger: { trigger: frame, start, once: true } });
+    tl.fromTo(frame, { clipPath: SHUT[from] }, { clipPath: OPEN, duration: 1.5, ease: "expo.inOut", clearProps: "clipPath" })
+      .fromTo(img, { scale: 1.32, filter: "brightness(0.6)" }, { scale: 1, filter: "brightness(1)", duration: 2.1, ease: "expo.out", clearProps: "filter" }, 0.12);
+    return tl;
+  };
+  $$(".story__img").forEach((f, i) => revealImg(f, { delay: i * 0.18, start: "top 85%" }));
+  revealImg($(".reserve__media"), { from: "side", start: "top 70%" });
+  gsap.from(".reserve__quote > *", { yPercent: 60, opacity: 0, duration: 1.2, stagger: 0.1, ease: "expo.out", delay: 0.9, scrollTrigger: { trigger: ".reserve__media", start: "top 70%", once: true } });
 
   /* ---------- vitrine: pinned horizontal glide on desktop ---------- */
   const mm = gsap.matchMedia();
@@ -222,8 +237,14 @@ if (!hasGsap) {
     $$(".vcard").forEach((card) => {
       gsap.fromTo(card.querySelector("img"), { xPercent: -6 }, { xPercent: 6, ease: "none", scrollTrigger: { trigger: card, containerAnimation: tween, start: "left right", end: "right left", scrub: true } });
     });
-    gsap.from(".vcard", { x: 160, opacity: 0, rotateY: -14, duration: 1.4, stagger: 0.08, ease: "expo.out", scrollTrigger: { trigger: pin, start: "top 70%" } });
   });
+
+  /* ---------- vitrine cards: staggered mask reveal, then the caption rises ---------- */
+  const cards = $$(".vcard");
+  const cardTl = gsap.timeline({ scrollTrigger: { trigger: ".vitrine__track", start: "top 78%", once: true } });
+  cardTl.fromTo(cards, { clipPath: SHUT.up }, { clipPath: OPEN, duration: 1.4, stagger: 0.12, ease: "expo.inOut", clearProps: "clipPath" }, 0)
+    .fromTo(cards.map((c) => c.querySelector("img")), { scale: 1.3 }, { scale: 1, duration: 2, stagger: 0.12, ease: "expo.out" }, 0.1)
+    .fromTo(cards.map((c) => [c.querySelector(".vcard__no"), c.querySelector(".vcard__body")]).flat(), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.06, ease: "expo.out" }, 0.7);
 
   /* ---------- active nav link ---------- */
   const links = $$(".nav__pill a");
